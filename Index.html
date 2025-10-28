@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário QR - Abastecimento 1005</title>
+<style>
+  body { font-family: Arial; padding: 12px; }
+  label { display:block; margin-top:8px; }
+  #reader { width: 100%; max-width:420px; margin: 8px 0; }
+  .status { color: green; margin-top:5px; }
+  .error { color: red; }
+</style>
+<script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
+</head>
+<body>
+<h2>Registro por QR — Abastecimento 1005</h2>
+<div id="reader"></div>
+
+<form id="form">
+  <label>Item:
+    <select id="itemSelect">
+      <option value="">-- SELECIONE --</option>
+      <option>2002558 CAIXA CAFE 3C EF RN VAC 20X250G</option>
+      <option>2002557 CAIXA CAFE 3C TRAD RN VAC 20X250G</option>
+      <option>2002545 CAIXA CAFE KIM CE RN VAC 20X250G</option>
+      <option>2002547 CAIXA CAFE PRINCIPAL CE RN VAC 20X250G</option>
+      <option>2001644 CAIXA CAFE SC CE RN VAC 250G</option>
+      <option>2002546 CAIXA CAFE SC PREM CE RN VAC 250G</option>
+      <option>2000892 CAIXA CAFE TM SC EF CE/RN 250G</option>
+      <option>2005049 EMB CAFE 3C EF TUDO SW GOG CE V2 250G</option>
+      <option>2005092 EMB CAFE 3C EF TUDO SW VAC BOSCH V2 250G</option>
+      <option>2004365 EMB CAFE 3C TRAD TUDO GOG CE SW VAC 250G</option>
+      <option>2003134 EMB CAFE KIM CE RN ALM 100G</option>
+      <option>2002363 EMB CAFE KIM CE/RN ALM 250G</option>
+      <option>2005008 EMB CAFE KIM TUDO ALM V2 100G</option>
+      <option>2005043 EMB CAFE KIM TUDO ALM V2 20X250G</option>
+      <option>2004371 EMB CAFE KIM TUDO SW VAC 250G</option>
+      <option>2004505 EMB CAFE KIM TUDO SW VAC GOG 250G</option>
+      <option>2005037 EMB CAFE KIM TUDO SW VAC GOG V2 250G</option>
+      <option>2005070 EMB CAFE KIM TUDO SW VAC V2 250G</option>
+      <option>2005015 EMB CAFE PRINC TUDO ALM V2 250G</option>
+      <option>2005030 EMB CAFE PRINC TUDO SW VAC GOG V3 250G</option>
+      <option>2005016 EMB CAFE PRINC TUDO SW VAC V2 250G</option>
+      <option>2003187 EMB CAFE SC CLAS CE RN ALM 100G</option>
+      <option>2002564 EMB CAFE SC CLAS CE RN ALM 250G</option>
+      <option>2001261 EMB CAFE SC CLAS CE SW VAC 250G</option>
+      <option>2002055 EMB CAFE SC CLAS SW VAC GOG 250G</option>
+      <option>2004779 EMB CAFE SC CLAS SW VAC GOG V2 20X250G</option>
+      <option>2004483 EMB CAFE SC CLAS TUDO ALM 100G</option>
+      <option>2004560 EMB CAFE SC CLAS TUDO ALM 250G</option>
+      <option>2004405 EMB CAFE SC CLAS TUDO SW VAC 250G</option>
+      <option>2004504 EMB CAFE SC CLAS TUDO SW VAC GOG 250G</option>
+      <option>2005120 EMB CAFE SC EF CE SW PKD TUDO V2 250G</option>
+      <option>2005086 EMB CAFE SC EF TUDO SW GOG CE V2 250G</option>
+      <option>2003633 EMB CAFE SC PREM DW VAC 250G</option>
+      <option>2004301 EMB CAFE SC PREM DW VAC V2 250G</option>
+      <option>2001020 EMB CAFE TM 3 FAZENDAS TRAD VAC GOG 250G</option>
+      <option>2004442 EMB CAFE TM 3C TRAD TUDO BOSCH VAC 250G</option>
+      <option>2005071 EMB CAFE TM SC EF TUDO ALM FABR V2 250G</option>
+      <option>2005076 EMB CAFE TM SC EF TUDO ALM V2 100G</option>
+      <option>2005391 EMB CAFE TM SC PREM SW VAC GOG V2 250G</option>
+      <option>2004774 EMB CAFE TM SC PREM SW VAC V2 250G</option>
+      <option>2003060 FILME ENF PE CAFE KIM 100G</option>
+      <option>2003061 FILME ENF PE CAFE KIM 250G</option>
+      <option>2003653 FILME ENF PE CAFE PRINCIPAL 250G</option>
+      <option>2001641 FILME ENF PE CAFE SC CLAS 100G</option>
+      <option>2001642 FILME ENF PE CAFE SC CLAS 250G</option>
+      <option>2000886 FILME ENFAR PET CAFE TM SC EF 20X250G</option>
+      <option>2000716 FILME ENFAR PET CAFE TM SC EF 50X100G</option>
+    </select>
+  </label>
+
+  <label>Quantidade:
+    <input id="quantInput" type="number" min="0" step="1" />
+  </label>
+
+  <label>Lote:
+    <input id="loteInput" type="text" />
+  </label>
+
+  <div>
+    <button id="manualBtn" type="button">Registrar manual</button>
+    <div id="msg" class="status"></div>
+  </div>
+</form>
+
+<script>
+// CONFIGURAÇÃO
+const SPREADSHEET_ID = "16ueBFuRu26Zr38katUOwwenuh09NsKXJxnZLJSVSZtk"; // substitua pelo seu ID
+const API_KEY = "AIzaSyBiKgLGUc-pm1X7-8zCrX4XDGhU1iM8cjM";          // substitua pela sua API Key
+
+// Função para mostrar mensagens
+const msg = document.getElementById('msg');
+function showMsg(txt,isError=false){
+  msg.textContent = txt;
+  msg.className = isError?'error':'status';
+  setTimeout(()=>msg.textContent='',2500);
+}
+
+// Elementos do formulário
+const itemSelect = document.getElementById('itemSelect');
+const quantInput = document.getElementById('quantInput');
+const loteInput = document.getElementById('loteInput');
+const manualBtn = document.getElementById('manualBtn');
+
+// Envio direto para Google Sheets
+async function enviarRegistro(item,quantidade,lote,qrcode){
+  const date = new Date().toISOString();
+  const values = [[date,item,quantidade,lote,qrcode]];
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/Registros:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+  const body = { values };
+
+  try {
+    const res = await fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    if(data.updates && data.updates.updatedRows > 0) showMsg('Registrado ✔');
+    else showMsg('Erro ao registrar',true);
+    quantInput.value=''; loteInput.value='';
+  } catch(err){
+    showMsg('Erro conexão',true);
+    console.error(err);
+  }
+}
+
+// QR interpretation
+function interpretarQR(text){
+  text = text.trim().toUpperCase();
+  const qtdPrefixes = ['Q:','QTD:','QTD=','QUANT:'];
+  const lotePrefixes = ['L:','LOTE:','LOT='];
+
+  for(const p of qtdPrefixes) if(text.startsWith(p)) return {type:'quant', value:text.slice(p.length).replace(/\D/g,'')};
+  for(const p of lotePrefixes) if(text.startsWith(p)) return {type:'lote', value:text.slice(p.length).trim()};
+
+  if(/^\d+$/.test(text)){
+    for(const opt of itemSelect.options) if(opt.value.startsWith(text)) return {type:'item', value:opt.value};
+    if(text.length<=5) return {type:'quant', value:text};
+    return {type:'lote', value:text};
+  }
+  return {type:'lote', value:text};
+}
+
+// Process QR
+function processDecoded(decodedText){
+  const r = interpretarQR(decodedText);
+  if(r.type==='item'){ for(const opt of itemSelect.options) if(opt.value.startsWith(r.value.split(' ')[0])) opt.selected=true; }
+  else if(r.type==='quant') quantInput.value=r.value;
+  else if(r.type==='lote') loteInput.value=r.value;
+
+  if(itemSelect.value && quantInput.value && loteInput.value)
+    enviarRegistro(itemSelect.value,quantInput.value,loteInput.value,decodedText);
+}
+
+// Botão manual
+manualBtn.addEventListener('click',()=>{
+  if(!itemSelect.value || !quantInput.value || !loteInput.value){
+    showMsg('Preencha todos os campos',true); return;
+  }
+  enviarRegistro(itemSelect.value,quantInput.value,loteInput.value,'');
+});
+
+// Inicia scanner
+const html5QrCode = new Html5Qrcode("reader");
+Html5Qrcode.getCameras().then(cameras=>{
+  if(cameras.length) html5QrCode.start(cameras[0].id,{fps:8,qrbox:{width:250,height:250}},decodedText=>processDecoded(decodedText));
+  else showMsg('Nenhuma câmera encontrada',true);
+}).catch(err=>showMsg('Erro câmera:'+err,true));
+</script>
+</body>
+</html>
